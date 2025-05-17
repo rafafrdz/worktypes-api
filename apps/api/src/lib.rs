@@ -7,7 +7,7 @@ use worktypes::WorktypesModule;
 
 pub struct AppModules {
     pub companies: CompaniesModule,
-    // pub worktypes: WorktypesModule,
+    pub worktypes: WorktypesModule,
     // more modules here:
     // pub new_module: NewModule,
 }
@@ -17,13 +17,13 @@ impl AppModules {
         let c = config.database_url.clone();
         tracing::info!(c);
         let companies: CompaniesModule = CompaniesModule::create(config).await.unwrap();
-        // let worktypes: WorktypesModule = WorktypesModule::create(config).await.unwrap();
+        let worktypes: WorktypesModule = WorktypesModule::create(config).await.unwrap();
         // more modules here:
         // let new_module = NewModule::create(config).await.unwrap();
 
         Self {
             companies,
-            // worktypes,
+            worktypes,
             // more modules here:
             // new_module
         }
@@ -32,7 +32,7 @@ impl AppModules {
     pub fn combined_routes(&self) -> Router {
         let routes: Vec<Router> = vec![
             self.companies.routes(),
-            // self.worktypes.routes(),
+            self.worktypes.routes(),
             // more routes here:
             // self.new_module.routes(),
         ];

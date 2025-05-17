@@ -4,6 +4,7 @@ use async_trait::async_trait;
 use chrono::{DateTime, Utc};
 use sqlx::query::Query;
 use sqlx::{query_as, Database};
+use tracing::instrument;
 use uuid::Uuid;
 
 use crate::models::{DataType, WorkAttributeType, WorkType};
@@ -15,7 +16,7 @@ use common::error::Result;
 use common::repositories::postgres::PostgresRepository;
 
 pub static QUERY: &str = "
-                    CREATE TABLE WorkType (
+                    CREATE TABLE IF NOT EXISTS WorkType (
                         id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
                         title VARCHAR(100) NOT NULL,
                         description TEXT,
@@ -23,7 +24,7 @@ pub static QUERY: &str = "
                         updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
                     );
 
-                    CREATE TABLE WorkAttributeType (
+                    CREATE TABLE IF NOT EXISTS WorkAttributeType (
                         id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
                         work_type_id UUID NOT NULL REFERENCES WorkType(id) ON DELETE CASCADE,
                         name VARCHAR(100) NOT NULL,
@@ -53,7 +54,10 @@ struct FlatWorkTypeRow {
 
 #[async_trait]
 impl WorkTypeRepositoryTrait for PostgresRepository {
+
+    #[instrument]
     async fn list(&self) -> Result<Vec<WorkType>> {
+        tracing::info!("Listing all worktypes");
         let pool = self.pool.lock().await;
         let rows: Vec<FlatWorkTypeRow> = sqlx::query_as!(
             FlatWorkTypeRow,
@@ -112,7 +116,9 @@ impl WorkTypeRepositoryTrait for PostgresRepository {
         Ok(work_types)
     }
 
+    #[instrument]
     async fn create(&self, request: CreateWorkType) -> Result<WorkType> {
+        tracing::info!("Creating the worktype {:?}", request);
         let pool = self.pool.lock().await;
         let mut tx: sqlx::Transaction<'static, sqlx::Postgres> =
             pool.begin().await.map_err(AppError::Database)?;

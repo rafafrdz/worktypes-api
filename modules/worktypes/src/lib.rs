@@ -5,6 +5,7 @@ use axum::Router;
 use common::{config::Config, modules::Module, repositories::postgres::PostgresRepository};
 use common::{error::AppError, error::Result};
 use repositories::repository::WorkTypeRepositoryTrait;
+use tracing::instrument;
 
 mod handlers;
 mod models;
@@ -18,25 +19,28 @@ pub struct WorktypesModule {
 
 #[async_trait]
 impl Module for WorktypesModule {
+    #[instrument]
     async fn create(config: &Config) -> Result<Self> {
-        match PostgresRepository::new_with_ensured_query(
+        let repo_opt: Result<PostgresRepository> = PostgresRepository::new_with_ensured_query(
             &config.database_url,
             repositories::postgres::QUERY,
         )
-        .await
-        {
-            Ok(repo) => {
-                tracing::info!("Módulo de Worktypes: Conectado a PostgreSQL");
-                let psql_repo = Arc::new(repo) as Arc<dyn WorkTypeRepositoryTrait + Send + Sync>;
-                Ok(Self {
+        .await;
+
+        repo_opt
+            .map(|r| {
+                tracing::info!("[Worktype Module] Conectado a PostgreSQL");
+                let psql_repo = Arc::new(r) as Arc<dyn WorkTypeRepositoryTrait + Send + Sync>;
+                Self {
                     repository: psql_repo,
-                })
-            }
-            Err(e) => Err(AppError::Internal(format!(
-                "Worktype Module: Problem connecting to PostgreSQL. Error: {}",
-                e
-            ))),
-        }
+                }
+            })
+            .map_err(|e| {
+                AppError::Internal(format!(
+                    "[Worktype Module] Problem connecting to PostgreSQL. Error: {}",
+                    e
+                ))
+            })
     }
 
     fn routes(&self) -> Router {

@@ -10,7 +10,7 @@ use crate::models::{Company, CompanyRequest};
 use super::repository::CompanyRepositoryTrait;
 
 
-pub static COMPANY_QUERY: &str = "
+pub static QUERY: &str = "
             CREATE TABLE IF NOT EXISTS Company (
                 id TEXT PRIMARY KEY,
                 name TEXT NOT NULL,

@@ -14,10 +14,12 @@ pub struct AppModules {
 
 impl AppModules {
     pub async fn init(config: &Config) -> Self {
-        let companies = CompaniesModule::new(config).await;
-        // let worktypes = WorktypesModule::new(config).await;
+        let c = config.database_url.clone();
+        tracing::info!(c);
+        let companies: CompaniesModule = CompaniesModule::create(config).await.unwrap();
+        // let worktypes: WorktypesModule = WorktypesModule::create(config).await.unwrap();
         // more modules here:
-        // let new_module = NewModule::new(config).await;
+        // let new_module = NewModule::create(config).await.unwrap();
 
         Self {
             companies,
@@ -51,7 +53,7 @@ pub async fn run() {
         .init();
 
     // Cargar configuración
-    let config = Config::from_env();
+    let config: Config = Config::from_env();
     let router: Router = create_routes(&config).await;
     // Crear la aplicación
     let app = create_app(router).await;

@@ -5,6 +5,8 @@ use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
 use common::error::AppError;
+
+use crate::requests::CreateWorkType;
 // Aqui definimos los modelos para los tipos de entidades de trabajo
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct WorkType {
@@ -101,6 +103,27 @@ impl<'de> Deserialize<'de> for DataType {
 }
 
 impl WorkType {
+    pub fn from_create_request(request: CreateWorkType) -> Self {
+        let attributes: Vec<WorkAttributeType> = request
+            .attributes
+            .iter()
+            .map(|att_req| {
+                WorkAttributeType::new(
+                    att_req.name.clone(),
+                    att_req.data_type,
+                    att_req.is_required,
+                    att_req.is_hidden,
+                )
+            })
+            .collect();
+
+        let new_worktype: WorkType = WorkType::default(request.title);
+        Self {
+            description: request.description,
+            attributes,
+            ..new_worktype
+        }
+    }
     pub fn default(title: String) -> Self {
         let now = Utc::now();
         let summary: WorkAttributeType = WorkAttributeType::summary();

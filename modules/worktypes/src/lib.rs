@@ -3,6 +3,7 @@ use std::sync::Arc;
 use async_trait::async_trait;
 use axum::Router;
 use common::{config::Config, modules::Module, repositories::postgres::PostgresRepository};
+use common::{error::AppError, error::Result};
 use repositories::repository::WorkTypeRepositoryTrait;
 
 mod handlers;
@@ -17,37 +18,25 @@ pub struct WorktypesModule {
 
 #[async_trait]
 impl Module for WorktypesModule {
-    async fn new(config: &Config) -> Self {
-        let repository = match &config.database_url {
-            Some(url) => {
-                match PostgresRepository::new_with_ensured_query(url, repositories::postgres::QUERY)
-                    .await
-                {
-                    Ok(repo) => {
-                        tracing::info!("Módulo de compañías: Conectado a PostgreSQL");
-                        Arc::new(repo) as Arc<dyn WorkTypeRepositoryTrait + Send + Sync>
-                    }
-                    Err(e) => {
-                        tracing::error!(
-                            "Módulo de compañías: Error al conectar a PostgreSQL: {}",
-                            e
-                        );
-                        tracing::info!("Módulo de compañías: Usando repositorio en memoria");
-                        panic!("Change here to Result<WorktypesModule>")
-                        // Arc::new(repositories::memory::MemoryCompanyRepository::new())
-                        //     as Arc<dyn WorkTypeRepositoryTrait + Send + Sync>
-                    }
-                }
+    async fn create(config: &Config) -> Result<Self> {
+        match PostgresRepository::new_with_ensured_query(
+            &config.database_url,
+            repositories::postgres::QUERY,
+        )
+        .await
+        {
+            Ok(repo) => {
+                tracing::info!("Módulo de Worktypes: Conectado a PostgreSQL");
+                let psql_repo = Arc::new(repo) as Arc<dyn WorkTypeRepositoryTrait + Send + Sync>;
+                Ok(Self {
+                    repository: psql_repo,
+                })
             }
-            None => {
-                tracing::info!("Módulo de compañías: Variable DATABASE_URL no configurada, usando repositorio en memoria");
-                panic!("Change here to Result<WorktypesModule>")
-                // Arc::new(repositories::memory::MemoryCompanyRepository::new())
-                //     as Arc<dyn WorkTypeRepositoryTrait + Send + Sync>
-            }
-        };
-
-        Self { repository }
+            Err(e) => Err(AppError::Internal(format!(
+                "Worktype Module: Problem connecting to PostgreSQL. Error: {}",
+                e
+            ))),
+        }
     }
 
     fn routes(&self) -> Router {

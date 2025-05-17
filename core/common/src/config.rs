@@ -1,4 +1,6 @@
-use dotenvy::{self, dotenv};
+use dotenvy::dotenv;
+use std::env;
+use tracing_subscriber::EnvFilter;
 
 #[derive(Debug)]
 pub struct Config {
@@ -8,10 +10,19 @@ pub struct Config {
 
 impl Config {
     pub fn from_env() -> Self {
-        // dotenv().ok();
-        // let c = envy::from_env::<Config>();
-        let database_url = std::env::var("DATABASE_URL").expect("Invalid DATABASE_URL variable.");
-        let port = std::env::var("PORT")
+        dotenv().ok();
+        tracing_subscriber::fmt()
+            .with_env_filter(EnvFilter::from_default_env())
+            .with_target(true)
+            .with_level(true)
+            .with_line_number(true)
+            .pretty()
+            .init();
+
+        let database_url =
+            env::var("DATABASE_URL").expect("Missing DATABASE_URL in environment or .env file.");
+
+        let port = env::var("PORT")
             .ok()
             .and_then(|p| p.parse().ok())
             .unwrap_or(3000);

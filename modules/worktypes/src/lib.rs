@@ -5,7 +5,6 @@ use axum::Router;
 use common::{config::Config, modules::Module, repositories::postgres::PostgresRepository};
 use common::{error::AppError, error::Result};
 use repositories::repository::WorkTypeRepositoryTrait;
-use tracing::instrument;
 
 mod handlers;
 mod models;
@@ -19,7 +18,6 @@ pub struct WorktypesModule {
 
 #[async_trait]
 impl Module for WorktypesModule {
-    #[instrument]
     async fn create(config: &Config) -> Result<Self> {
         let repo_opt: Result<PostgresRepository> = PostgresRepository::new_with_ensured_query(
             &config.database_url,

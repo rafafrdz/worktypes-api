@@ -54,7 +54,6 @@ struct FlatWorkTypeRow {
 
 #[async_trait]
 impl WorkTypeRepositoryTrait for PostgresRepository {
-
     #[instrument]
     async fn list(&self) -> Result<Vec<WorkType>> {
         tracing::info!("Listing all worktypes");

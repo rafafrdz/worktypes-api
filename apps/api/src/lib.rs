@@ -3,6 +3,7 @@ use common::modules::Module;
 use common::{config::Config, server::create_app};
 use companies::CompaniesModule;
 use tokio::net::TcpListener;
+use tracing_subscriber::{fmt, EnvFilter};
 use worktypes::WorktypesModule;
 
 pub struct AppModules {
@@ -48,9 +49,7 @@ pub async fn create_routes(config: &Config) -> Router {
 }
 pub async fn run() {
     // Inicializar el logger
-    tracing_subscriber::fmt()
-        .with_max_level(tracing::Level::DEBUG)
-        .init();
+
 
     // Cargar configuración
     let config: Config = Config::from_env();

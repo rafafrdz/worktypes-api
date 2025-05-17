@@ -2,7 +2,6 @@ use std::sync::Arc;
 
 use sqlx::{postgres::PgPoolOptions, Pool, Postgres};
 use tokio::sync::Mutex;
-use tracing::instrument;
 
 use crate::error::{AppError, Result};
 
@@ -24,7 +23,6 @@ impl PostgresRepository {
         })
     }
 
-    #[instrument]
     pub async fn new_with_ensured_query(database_url: &str, sql_query: &str) -> Result<Self> {
         let pool: Pool<Postgres> = PgPoolOptions::new()
             .max_connections(5)

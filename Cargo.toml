@@ -6,6 +6,7 @@ members = [
 
     # Modules
     "modules/companies",
+    "modules/offices",
     "modules/worktypes",
     # More modules here...
 ]

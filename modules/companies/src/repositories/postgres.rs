@@ -1,29 +1,30 @@
 use async_trait::async_trait;
 use chrono::{DateTime, Utc};
+use common::{
+    error::{AppError, Result},
+    repositories::postgres::PostgresRepository,
+};
+use offices::models::*;
+use serde::{Deserialize, Serialize};
 use sqlx::query_as;
 use uuid::Uuid;
-use common::{error::{AppError, Result}, repositories::postgres::PostgresRepository};
-
 
 use crate::models::{Company, CompanyRequest};
 
 use super::repository::CompanyRepositoryTrait;
 
-
 pub static QUERY: &str = "
-            CREATE TABLE IF NOT EXISTS company (
-                id TEXT PRIMARY KEY,
-                name TEXT NOT NULL,
-                cif_number TEXT UNIQUE,
-                billing_address TEXT,
-                postal_code INTEGER,
-                city TEXT,
-                province TEXT,
-                industry TEXT,
-                industry_sub_category TEXT,
-                created_at TIMESTAMP WITH TIME ZONE NOT NULL,
-                updated_at TIMESTAMP WITH TIME ZONE NOT NULL
-            )
+                CREATE TABLE IF NOT EXISTS company (
+                    id TEXT PRIMARY KEY,
+                    name TEXT NOT NULL,
+                    cif_number TEXT UNIQUE NOT NULL,
+                    billing_address TEXT NOT NULL,
+                    postal_code INTEGER NOT NULL,
+                    city TEXT NOT NULL,
+                    province TEXT NOT NULL,
+                    industry TEXT NOT NULL,
+                    industry_sub_category TEXT NOT NULL DEFAULT ''
+                );
             ";
 
 #[async_trait]
@@ -251,6 +252,27 @@ struct DbCompany {
     industry_sub_category: Option<String>,
     created_at: DateTime<Utc>,
     updated_at: DateTime<Utc>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct FlatCompanyDao {
+    pub id: String,
+    pub name: String,
+    pub cif_number: String,
+    pub billing_address: String,
+    pub postal_code: i32,
+    pub city: String,
+    pub province: String,
+    pub industry: String,
+    pub industry_sub_category: String,
+    pub offices: Vec<Office>,
+    pub users: Vec<User>,
+    pub objectives: Vec<Objective>,
+    pub employees: Vec<Employee>,
+    pub certificates: Vec<CertificationTemplate>,
+    pub documents: Vec<Document>,
+    pub reports: Vec<Report>,
+    pub company_config: Vec<CompanyConfig>,
 }
 
 impl From<DbCompany> for Company {

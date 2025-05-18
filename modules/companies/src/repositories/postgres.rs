@@ -11,7 +11,7 @@ use super::repository::CompanyRepositoryTrait;
 
 
 pub static QUERY: &str = "
-            CREATE TABLE IF NOT EXISTS Company (
+            CREATE TABLE IF NOT EXISTS company (
                 id TEXT PRIMARY KEY,
                 name TEXT NOT NULL,
                 cif_number TEXT UNIQUE,

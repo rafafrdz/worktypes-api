@@ -16,7 +16,7 @@ use common::error::Result;
 use common::repositories::postgres::PostgresRepository;
 
 pub static QUERY: &str = "
-                    CREATE TABLE IF NOT EXISTS WorkType (
+                    CREATE TABLE IF NOT EXISTS work_type (
                         id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
                         title VARCHAR(100) NOT NULL,
                         description TEXT,
@@ -24,9 +24,9 @@ pub static QUERY: &str = "
                         updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
                     );
 
-                    CREATE TABLE IF NOT EXISTS WorkAttributeType (
+                    CREATE TABLE IF NOT EXISTS work_attribute_type (
                         id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-                        work_type_id UUID NOT NULL REFERENCES WorkType(id) ON DELETE CASCADE,
+                        work_type_id UUID NOT NULL REFERENCES work_type(id) ON DELETE CASCADE,
                         name VARCHAR(100) NOT NULL,
                         data_type VARCHAR(50) NOT NULL,
                         is_required BOOLEAN NOT NULL DEFAULT FALSE,
@@ -74,8 +74,8 @@ impl WorkTypeRepositoryTrait for PostgresRepository {
                     wat.is_hidden,
                     wat.created_at AS attribute_created_at,
                     wat.updated_at AS attribute_updated_at
-                FROM WorkType wt
-                LEFT JOIN WorkAttributeType wat ON wt.id = wat.work_type_id
+                FROM work_type wt
+                LEFT JOIN work_attribute_type wat ON wt.id = wat.work_type_id
                 ORDER BY wt.id
     "#
         )
@@ -145,7 +145,7 @@ pub fn create_work_attribute_type_query(
 ) -> Query<sqlx::Postgres, sqlx::postgres::PgArguments> {
     sqlx::query(
         r#"
-INSERT INTO WorkAttributeType
+INSERT INTO work_attribute_type
 (id, work_type_id, name, data_type, is_required, is_hidden, created_at, updated_at)
 VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
 "#,
@@ -165,7 +165,7 @@ pub fn create_work_type_query(
 ) -> Query<sqlx::Postgres, sqlx::postgres::PgArguments> {
     sqlx::query(
         r#"
-INSERT INTO WorkType
+INSERT INTO work_type
 (id, title, description, created_at, updated_at)
 VALUES ($1, $2, $3, $4, $5)
 "#,

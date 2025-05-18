@@ -1,5 +1,7 @@
 # Usage Examples
 
+This section provide a how-to use the endpoints with examples.
+
 ## Companies
 
 ### List Companies

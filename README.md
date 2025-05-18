@@ -12,20 +12,12 @@ A RESTful API built in Rust for managing work types and companies. This project 
 - **Chrono**: For handling date and time.
 - **SQLx**: Async PostgreSQL driver and query builder.
 
-## API Endpoints
+## API Endpoints and Examples
 
-| Method | Endpoint                  | Description                           |
-|--------|---------------------------|---------------------------------------|
-| GET    | /companies                | List all companies (with name filter) |
-| POST   | /companies                | Create a new company                  |
-| GET    | /companies/{id}           | Get a company by ID                   |
-| PUT    | /companies/{id}           | Update a company                      |
-| POST   | /companies/{id}/duplicate | Duplicate a company                   |
-| GET    | /worktypes                | List all worktypes (with name filter) |
-| POST   | /worktypes                | Create a new worktype                 |
-| GET    | /worktypes/{id}           | Get a worktype by ID                  |
-| PUT    | /worktypes/{id}           | Update a worktype                     |
-| POST   | /worktypes/{id}/duplicate | Duplicate a worktype                  |
+Please, check [docs](./docs/) folder. There you could find descriptions about the endpoints and some examples to show you how to deal with them.
+
+- [Api Endpoint Descriptions](./docs/api-endpoints.md).
+- [Examples](./docs/examples.md).
 
 ## Installation and Local Development
 
@@ -85,8 +77,6 @@ A RESTful API built in Rust for managing work types and companies. This project 
 
 The API will be available at: `http://localhost:3000`
 
----
-
 ## Deployment
 
 If you're deploying the API, make sure a PostgreSQL instance is available. You can use the provided Docker setup.
@@ -120,8 +110,6 @@ If you're deploying the API, make sure a PostgreSQL instance is available. You c
    docker run -p 3000:3000 -e DATABASE_URL=postgres://postgres:postgres@host.docker.internal:5432/worktypes worktypes-api
    ```
 
----
-
 ## Adding New Modules
 
 To add a new module:
@@ -130,7 +118,4 @@ To add a new module:
 2. Follow the structure used in the `companies` module.
 3. Register the module in [`Cargo.toml`](Cargo.toml) under `[workspace]`.
 4. Add its routes in `AppModules` in [`apps/api/src/lib.rs`](./apps/api/src/lib.rs).
-
----
-
 
